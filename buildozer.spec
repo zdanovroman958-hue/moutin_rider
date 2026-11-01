@@ -15,7 +15,7 @@ version = 1.0.0
 # Библиотеки, которые собираются в APK.
 # Игра использует pygame-ce; в python-for-android рецепт называется pygame.
 # numpy и pymunk - рецепты есть в p4a.
-requirements = python3==3.11,pygame,pymunk,numpy
+requirements = python3==3.11,hostpython3==3.11,pygame,pymunk,numpy
 
 # Внешний вид и ориентация
 orientation = landscape
