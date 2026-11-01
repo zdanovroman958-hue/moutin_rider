@@ -45,6 +45,9 @@ WHEEL_SPEED_BASE = 60       # рад/с
 LEAN_TORQUE = 52000
 CHECKPOINT_EVERY = 900     # пикселей
 PX_PER_METER = 40
+LEVEL_METERS = 50          # метров на один уровень
+LEVEL_POINTS = 20          # очков за новый уровень
+TERRAIN_LEVEL = 1          # текущий уровень сложности рельефа (растёт с уровнями)
 SEGMENT = 24               # длина кусочка земли для физики
 HEAD_LOCAL = (8, -46)      # положение головы в системе рамы
 FORK_SETTLED = 72.5        # длина вилки в покое с учётом провисания пружины
@@ -121,15 +124,18 @@ def ik(a, b, l1, l2, flip):
 
 # ---------- Рельеф ----------
 def terrain_y(x):
-    """Высота земли в точке x (ось Y направлена вниз). Чем дальше, тем круче."""
+    """Высота земли в точке x (ось Y направлена вниз). Чем дальше и выше уровень, тем круче."""
     base = 400.0
     t = max(0.0, x - 500.0)
     ramp = min(1.0, t / 7000.0)
-    amp = 18 + 50 * ramp
+    lvl = TERRAIN_LEVEL if TERRAIN_LEVEL > 1 else 1
+    pk = 1.0 + 0.16 * (lvl - 1)          # рост амплитуды с уровнем
+    tk = 1.0 + 0.05 * (lvl - 1)          # более частые кочки
+    amp = (18 + 50 * ramp) * pk
     y = (
         amp * math.sin(t / 170.0)
-        + amp * 0.25 * math.sin(t / 80.0 + 1.3)
-        + 30 * ramp * math.sin(t / 420.0)
+        + amp * 0.25 * math.sin(t / (80.0 / tk) + 1.3)
+        + (30 + 12 * (lvl - 1)) * ramp * math.sin(t / 420.0)
     )
     blend = min(1.0, max(0.0, (x - 350.0) / 300.0))  # плавный старт на ровном месте
     return base + y * blend - t * 0.02 * blend       # лёгкий общий подъём в гору
@@ -321,12 +327,16 @@ class Game:
         self.particles = []
         self.rider_lean = 0.0
         self.last_dist = self.distance()
+        self.level = 1
+        self._last_level = 1
         self.build_terrain()
 
     def restart_from_checkpoint(self):
         self.new_run(self.checkpoint_x)
 
     def restart_all(self):
+        global TERRAIN_LEVEL
+        TERRAIN_LEVEL = 1
         self.checkpoint_x = 150.0
         self.total_flips = 0
         self.new_run(150.0)
@@ -430,6 +440,18 @@ class Game:
             self.checkpoint_x += CHECKPOINT_EVERY * ((x - self.checkpoint_x) // CHECKPOINT_EVERY)
             self.points += CHECKPOINT_BONUS
         self.best = max(self.best, d)
+
+        # Система уровней: растёт сложность рельефа, баннер и бонус очков
+        global TERRAIN_LEVEL
+        new_level = int(d / LEVEL_METERS) + 1
+        self.level = max(1, new_level)
+        if self.level > self._last_level:
+            self._last_level = self.level
+            TERRAIN_LEVEL = self.level
+            self.points += LEVEL_POINTS
+            self.flip_popup = (f"УРОВЕНЬ {self.level}!", 2.0)
+            for wheel in (b.rear, b.front):
+                self.spawn_dust(wheel.position.x, wheel.position.y + WHEEL_R, 0, 6, 1.4)
 
         self.build_terrain()
 
@@ -958,7 +980,7 @@ class Game:
         # HUD
         self.panel(pygame.Rect(10, 8, 270, 58))
         self.text(f"{self.distance():.0f} м", self.huge, (24, 12), AMBER)
-        self.text(f"{self.speed_kmh():.0f} км/ч", self.small, (26, 46), (190, 184, 172))
+        self.text(f"Уровень {self.level}   •   {self.speed_kmh():.0f} км/ч", self.small, (26, 46), (190, 184, 172))
         self.text(f"Очки: {self.points}", self.small, (26, 72), AMBER)
 
         self.shop_btn = pygame.Rect(W // 2 - 66, 8, 132, 34)
