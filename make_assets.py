@@ -13,7 +13,6 @@ import math
 import os
 import random
 
-import numpy as np
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -21,11 +20,23 @@ OUT = os.path.join(HERE, "assets")
 VERSION = "6"
 HS = 3                      # во сколько раз детали байка/гонщика больше игрового размера
 
-# Свет падает сверху-справа (закатное солнце справа)
-_L = np.array([0.50, -0.70, 0.50], np.float32)
-_L /= np.linalg.norm(_L)
-_Hh = _L + np.array([0, 0, 1], np.float32)
-_Hh /= np.linalg.norm(_Hh)
+# numpy нужен только для (пере)генерации картинок, в рантайме импортировать его необязательно
+np = None
+_L = None
+_Hh = None
+
+
+def _np():
+    """Лениво импортирует numpy и подготавливает векторы света. Вызывается в generate_all()."""
+    global np, _L, _Hh
+    if np is None:
+        import numpy
+        np = numpy
+        _L = np.array([0.50, -0.70, 0.50], np.float32)
+        _L /= np.linalg.norm(_L)
+        _Hh = _L + np.array([0, 0, 1], np.float32)
+        _Hh /= np.linalg.norm(_Hh)
+    return np
 
 
 # ======================= шум =======================
@@ -828,6 +839,7 @@ def generate_environment():
 
 
 def generate_all():
+    _np()  # numpy подключается только здесь, для генерации картинок
     os.makedirs(OUT, exist_ok=True)
     generate_characters()
     generate_environment()
