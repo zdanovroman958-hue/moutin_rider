@@ -3,16 +3,29 @@ import os
 import traceback
 
 
-def _show_error(tb):
-    # persist the error for later reading (best effort)
-    here = os.path.dirname(os.path.abspath(__file__))
-    for p in ("/data/local/tmp/mountain_rider_error.log", os.path.join(here, "error.log")):
+def _write_log(tb):
+    # Write the traceback somewhere we can read back (private app dir + sdcard best effort)
+    paths = []
+    for env in ("ANDROID_PRIVATE", "ANDROID_APP_PATH"):
+        base = os.environ.get(env)
+        if base:
+            paths.append(os.path.join(base, "error.txt"))
+    paths.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "error.txt"))
+    try:
+        paths.append(os.path.join("/sdcard/mult", "error.txt"))
+    except Exception:
+        pass
+    for p in paths:
         try:
             with open(p, "w") as f:
                 f.write(tb)
         except Exception:
             pass
-    # try to render the traceback on screen so it can be screenshotted
+
+
+def _show_error(tb):
+    _write_log(tb)
+    # Try to render the traceback on screen so it can be screenshotted
     try:
         import pygame
     except Exception:
