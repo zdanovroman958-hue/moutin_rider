@@ -33,6 +33,8 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export LC_ALL=C
+          buildozer android debug || true
+          yes | /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager --licenses || true
           buildozer android debug
         timeout-minutes: 120
 
