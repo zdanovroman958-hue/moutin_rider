@@ -28,6 +28,8 @@ jobs:
             zlib1g-dev libncurses-dev \
             cmake libffi-dev libssl-dev libltdl-dev
           pip install --user --break-system-packages --upgrade buildozer cython
+          # host-side deps needed when pymunk's setup.py (cffi) builds on the host python
+          pip install --break-system-packages pycparser cffi
 
       - name: Build debug APK
         run: |
