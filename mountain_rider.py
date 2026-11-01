@@ -278,7 +278,7 @@ class Art:
 class Game:
     def __init__(self):
         pygame.init()
-        if "ANDROID_ARGUMENT" in os.environ:
+        if any(k in os.environ for k in ("ANDROID_ROOT", "ANDROID_APP_PATH", "ANDROID_ARGUMENT")):
             flags = pygame.FULLSCREEN
         else:
             flags = pygame.SCALED | pygame.RESIZABLE
