@@ -25,9 +25,9 @@ jobs:
             git zip unzip curl wget \
             python3-pip python3-venv \
             autoconf automake libtool pkg-config \
-            zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 \
+            zlib1g-dev libncurses-dev \
             cmake libffi-dev libssl-dev libltdl-dev
-          pip install --user --upgrade buildozer cython
+          pip install --user --break-system-packages --upgrade buildozer cython
 
       - name: Build debug APK
         run: |
