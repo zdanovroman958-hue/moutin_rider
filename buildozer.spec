@@ -15,7 +15,7 @@ version = 1.0.0
 # Библиотеки, которые собираются в APK.
 # Игра использует pygame-ce; в python-for-android рецепт называется pygame.
 # numpy и pymunk - рецепты есть в p4a.
-requirements = python3==3.9.18,hostpython3==3.9.18,pygame,pymunk,numpy==v2.0.1,pycparser
+requirements = python3==3.9.18,hostpython3==3.9.18,pygame,pymunk,pycparser
 
 # Внешний вид и ориентация
 orientation = landscape
@@ -43,6 +43,8 @@ android.console = 0
 android.logcat = 1
 
 [buildozer]
+
+p4a.branch = v2026.05.09
 
 log_level = 2
 warn_on_root = 1
