@@ -31,7 +31,7 @@ android.api = 33
 android.minapi = 24
 
 # NDK можно не указывать версию - buildozer подберёт совместимую с API 33.
-android.ndk = 25b
+28c
 
 # Архитектуры телефонов (arm64 - современные, armeabi-v7a - старые)
 android.archs = arm64-v8a
