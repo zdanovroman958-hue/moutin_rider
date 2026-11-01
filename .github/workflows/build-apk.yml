@@ -46,9 +46,10 @@ jobs:
           done
           echo "headers installed into $N dirs"
           # pymunk's setup.py builds under hostpython and needs pycparser there
-          HOSTPY=$(find .buildozer -path '*hostpython3*' -type f -name 'python3' | head -1)
-          echo "hostpython: $HOSTPY"
-          if [ -n "$HOSTPY" ]; then "$HOSTPY" -m pip install pycparser setuptools || true; fi
+          for CAND in $(find .buildozer -type f \( -name 'python3' -o -name 'python3.9' -o -name 'python' \) -path '*hostpython3*' 2>/dev/null); do
+            echo "hostpython candidate: $CAND"
+            "$CAND" -m pip install pycparser setuptools 2>&1 | tail -1 || true
+          done
           buildozer android debug
         timeout-minutes: 120
 
