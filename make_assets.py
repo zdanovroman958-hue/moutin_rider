@@ -13,15 +13,7 @@ import math
 import os
 import random
 
-np = None  # numpy is heavy and only needed to (re)generate assets; import it lazily
-
-
-def _np():
-    global np
-    if np is None:
-        import numpy
-        np = numpy
-    return np
+import numpy as np
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -479,7 +471,6 @@ def generate_characters():
     make_rider()
 
 
-
 # ======================= окружение =======================
 def save_img(img, name):
     img.save(os.path.join(OUT, name + ".png"))
@@ -837,7 +828,6 @@ def generate_environment():
 
 
 def generate_all():
-    _np()  # lazy import: numpy is only required here, never at runtime
     os.makedirs(OUT, exist_ok=True)
     generate_characters()
     generate_environment()
