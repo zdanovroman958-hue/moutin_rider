@@ -2,42 +2,46 @@ import sys
 import os
 import traceback
 
-import mountain_rider
+
+def _show_error(tb):
+    # persist the error for later reading (best effort)
+    here = os.path.dirname(os.path.abspath(__file__))
+    for p in ("/data/local/tmp/mountain_rider_error.log", os.path.join(here, "error.log")):
+        try:
+            with open(p, "w") as f:
+                f.write(tb)
+        except Exception:
+            pass
+    # try to render the traceback on screen so it can be screenshotted
+    try:
+        import pygame
+    except Exception:
+        sys.stderr.write(tb)
+        return
+    try:
+        pygame.init()
+        screen = pygame.display.set_mode((960, 540))
+        font = pygame.font.SysFont("monospace", 20)
+        y = 10
+        for ln in tb.splitlines()[-26:]:
+            screen.blit(font.render(ln, True, (235, 235, 235)), (10, y))
+            y += 21
+        pygame.display.flip()
+        while True:
+            for ev in pygame.event.get():
+                if ev.type == pygame.QUIT:
+                    sys.exit()
+            pygame.time.wait(40)
+    except Exception:
+        sys.stderr.write(tb)
 
 
 def main():
     try:
+        import mountain_rider
         mountain_rider.Game().run()
-    except Exception as exc:
-        tb = traceback.format_exc()
-        # persist the error so it can be read later
-        for path in ("/data/local/tmp/mountain_rider_error.log", "mountain_rider_error.log"):
-            try:
-                with open(path, "w") as f:
-                    f.write(tb)
-            except Exception:
-                pass
-        # try to show the traceback on screen so it can be screenshotted
-        try:
-            pygame = mountain_rider.pygame
-            pygame.init()
-            screen = pygame.display.set_mode((mountain_rider.W, mountain_rider.H))
-            font = pygame.font.SysFont("monospace", 20)
-            lines = tb.splitlines()[-26:]
-            y = 8
-            for ln in lines:
-                surf = font.render(ln, True, (235, 235, 235))
-                screen.blit(surf, (8, y))
-                y += 20
-            pygame.display.flip()
-            while True:
-                for ev in pygame.event.get():
-                    if ev.type == pygame.QUIT:
-                        sys.exit()
-                pygame.time.wait(40)
-        except Exception:
-            sys.stderr.write(tb)
-            raise
+    except Exception:
+        _show_error(traceback.format_exc())
 
 
 if __name__ == "__main__":
