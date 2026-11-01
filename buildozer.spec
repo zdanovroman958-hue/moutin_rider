@@ -22,6 +22,7 @@ orientation = landscape
 fullscreen = 1
 android.permissions = VIBRATE
 android.entrypoint = main.py
+android.accept_sdk_license = True
 
 # (Важно) иконка/сплэш опциональны. Без них соберётся APK-заглушка с дефолтным значком.
 # android.icon.filename = %(source.dir)s/icon.png
