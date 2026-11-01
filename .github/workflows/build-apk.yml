@@ -33,6 +33,16 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           export LC_ALL=C
+          # First pass: fetch/build python3+numpy, will stop at pygame missing header
+          buildozer android debug || true
+          # Supply longintrepr.h that p4a does not install, pygame needs it
+          SRC=$(find .buildozer -path '*/Include/longintrepr.h' | head -n 1)
+          echo "longintrepr source: $SRC"
+          if [ -n "$SRC" ]; then
+            for D in $(find .buildozer -type d -name 'python3.11'); do
+              cp "$SRC" "$D/longintrepr.h" && echo "copied to $D"
+            done
+          fi
           buildozer android debug
         timeout-minutes: 120
 
