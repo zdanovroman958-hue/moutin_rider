@@ -31,6 +31,14 @@ jobs:
           # host-side deps needed when pymunk's setup.py (cffi) builds on the host python
           pip install --break-system-packages pycparser cffi
 
+      - name: Cache buildozer deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.buildozer
+            ~/.buildozer
+          key: buildozer-${{ hashFiles('buildozer.spec', '.github/workflows/build-apk.yml') }}
+
       - name: Build debug APK
         run: |
           export PATH="$HOME/.local/bin:$PATH"
