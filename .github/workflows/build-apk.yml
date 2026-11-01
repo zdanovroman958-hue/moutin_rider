@@ -41,10 +41,14 @@ jobs:
           LONG='https://raw.githubusercontent.com/python/cpython/v3.11.9/Include/cpython/longintrepr.h'
           curl -fsSL "$LONG" -o /tmp/longintrepr.h && echo "downloaded longintrepr.h ($(wc -c </tmp/longintrepr.h) bytes)" || echo "download failed"
           N=0
-          for D in $(find .buildozer -type d -name 'python3.11'); do
+          for D in $(find .buildozer -type d -name 'python3.11' -o -type d -name 'python3.9'); do
             if [ -f /tmp/longintrepr.h ]; then cp /tmp/longintrepr.h "$D/longintrepr.h"; echo "copied to $D"; N=$((N+1)); fi
           done
           echo "headers installed into $N dirs"
+          # pymunk's setup.py builds under hostpython and needs pycparser there
+          HOSTPY=$(find .buildozer -path '*hostpython3*' -type f -name 'python3' | head -1)
+          echo "hostpython: $HOSTPY"
+          if [ -n "$HOSTPY" ]; then "$HOSTPY" -m pip install pycparser setuptools || true; fi
           buildozer android debug
         timeout-minutes: 120
 
