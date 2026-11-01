@@ -31,10 +31,10 @@ android.api = 33
 android.minapi = 24
 
 # NDK можно не указывать версию - buildozer подберёт совместимую с API 33.
-android.ndk = 28c
+android.ndk = 25b
 
 # Архитектуры телефонов (arm64 - современные, armeabi-v7a - старые)
-android.archs = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a
 
 # Тип сборки: debug имеет отладочный значок и подпись, подходит для теста.
 # Релиз (release) требует ключи для подписи - см. README_BUILD_APK.md.
